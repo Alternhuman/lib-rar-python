@@ -1,4 +1,5 @@
 import os
+import six
 
 def destroy_dir_recursive(dir):
   import shutil
@@ -45,7 +46,7 @@ def create_dir(path):
 
 def get_stat(path):
   import string
-  digs = string.digits + string.lowercase
+  digs = string.digits + string.lowercase if six.PY2 else string.ascii_lowercase
   
   def int2base(i, base):
     if i < 0: sign = -1
@@ -54,8 +55,8 @@ def get_stat(path):
     i *= sign
     digits = []
     while i:
-      digits.append(digs[i % base])
-      i /= base
+      digits.append(digs[int(i % base)])
+      i //= base
     if sign < 0:
       digits.append('-')
     digits.reverse()

@@ -1,5 +1,10 @@
 #!/usr/bin/python
-import unittest2 as unittest
+from __future__ import absolute_import
+import six
+if six.PY2:
+  import unittest2 as unittest
+else:
+  import unittest
 
 import file_helper
 import archive

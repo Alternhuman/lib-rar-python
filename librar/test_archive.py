@@ -1,7 +1,11 @@
 #!/usr/bin/python
+from __future__ import absolute_import
 import os
-import unittest2 as unittest
-
+import six
+if six.PY2:
+    import unittest2 as unittest
+else:
+    import unittest
 import file_helper, archive 
 
 opj = os.path.join
@@ -19,11 +23,11 @@ class TestArchive(unittest.TestCase):
   
   def tearDown(self):
     if self.keep:
-      print "RESULT WAS KEPT: ================================="
-      print
-      print "cd", self.tempdir
-      print
-      print
+      print("RESULT WAS KEPT: =================================")
+      print()
+      print(("cd", self.tempdir))
+      print()
+      print()
       return
     file_helper.destroy_dir_recursive(self.tempdir)
      

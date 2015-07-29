@@ -2,7 +2,7 @@ import os
 import subprocess
 import types
 import errno
-
+import six
 
 def shellcall(cmd,silent=False):
   # do a system call with shell = true
@@ -28,12 +28,12 @@ def findfile(choice):
     # 'choice' can either be of type String, containing a single filename
     # or also a tuple of strigs.
     # On some systems the rar bin file is in a different location.
-    if type(choice) is types.StringType:
+    if type(choice) is six.string_types:
       if os.path.isfile(choice):
         return choice
       else:
         raise Exception("File not found: %s" % choice)
-    if type(choice) is types.TupleType:
+    if type(choice) is tuple:
       for f in choice:
         if os.path.isfile(f):
           return f
@@ -60,7 +60,7 @@ class Logger(object):
   def log(self,message):
     command = "logger -t %s -- %s" % (self.tag,message)
     shellcall(command)
-    print command
+    print(command)
 
 
 class Archive(object):
@@ -97,10 +97,10 @@ class Archive(object):
     self.include_dirs.append(fullpath)
     
   def set_password(self, pwd):
-	self.pwd = pwd
-	
+    self.pwd = pwd
+    
   def set_compression_level(self, compression_level):
-	self.compression_level = compression_level
+    self.compression_level = compression_level
 
   def set_exclude_base_dir(self, exclude_base_dir):
     self.exclude_base_dir = exclude_base_dir
@@ -110,7 +110,7 @@ class Archive(object):
   
   def set_volume_size(self, volume_size):
     self.volume_size = volume_size
-	
+    
   def extract(self,target_path,silent=True):
     import os
     os.chdir(target_path)
@@ -118,7 +118,7 @@ class Archive(object):
     # -r = recurse subdirectories
     # (-r could be introduced, because single added files otherwise are extrated 
     #  to the wrong place. But this should bex fixed on archiving, nit unarchiving!)
-    cmd = self.rarbin + " x " + self.archive_fullpath
+    cmd = self.rarbin + " x " + "'" + self.archive_fullpath + "'"
     return shellcall(cmd,silent=silent)
     
   def run(self,silent=True):
@@ -132,19 +132,19 @@ class Archive(object):
     
     # exclude certain locations
     for p in self.exclude_patterns: 
-      cmd = cmd +  " -x" + p
+      cmd = cmd +  " -x" + "'"+p+"'"
 
     # the archive path and name
-    cmd = cmd + " " + self.archive_fullpath 
+    cmd = cmd + " " + "'" + self.archive_fullpath + "'" 
 
     # directories to include
     for p in self.include_dirs: 
-      cmd = cmd +  " " + p
+      cmd = cmd +  " " + "'" + p + "'"
 
     # files to include
     for p in self.include_files: 
-      cmd = cmd +  " " + p
-	  
+      cmd = cmd +  " " + "'" + p + "'"
+      
     # include password if necessary
     if self.pwd:
       pwd = " -p" + str(self.pwd)
@@ -153,14 +153,14 @@ class Archive(object):
     else:
       pwd = ""
       logpwd = ""
-	  
+      
     # compression level
     cmd = cmd + " -m" + str(self.compression_level)
-	
+    
     # split to volumes based on volume size
     if self.volume_size:
       cmd = cmd + " -v" + str(self.volume_size)
-	  
+      
     # add recovery record if necessary
     if self.recovery_record:
       cmd = cmd + " -rr" + str(self.recovery_record)
